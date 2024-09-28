@@ -38,6 +38,7 @@
     background-color: white;
     font-size: max(1vw,13px);
     border-radius: 50px;
+     cursor: pointer;
     -webkit-border-radius: 50px;
     -moz-border-radius: 50px;
     -ms-border-radius: 50px;
