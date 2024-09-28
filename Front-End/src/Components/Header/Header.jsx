@@ -1,7 +1,9 @@
 import React from 'react'
+import { useState } from 'react'
 import './Header.css'
 
 const Header = () => {
+   const [menu, setMenu] = useState('Home')
   return (
     <div className='header'>
         <div className="header-contents">
