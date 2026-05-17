@@ -1,12 +1,49 @@
-import mongoose from "mongoose";
+import { query } from '../config/db.js'
 
-const userSchema = new mongoose.Schema({
-    name: {type: String, required: true}, 
-    email: {type: String, required: true, unique: true},
-    password: {type: String, required: true},
-    cartData:{type: Object, default: {}}
-},{minimized: false})
+const mapUser = (row) => {
+  if (!row) return null
 
-const userModel = mongoose.models.user || mongoose.model("user",userSchema);
+  return {
+    _id: row.id,
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    password: row.password,
+    cartData: row.cart_data || {},
+  }
+}
 
-export default userModel;
+const userModel = {
+  async findOne({ email }) {
+    const result = await query('SELECT * FROM users WHERE email = $1', [email])
+    return mapUser(result.rows[0])
+  },
+
+  async findById(id) {
+    const result = await query('SELECT * FROM users WHERE id = $1', [id])
+    return mapUser(result.rows[0])
+  },
+
+  async create({ name, email, password }) {
+    const result = await query(
+      `INSERT INTO users (name, email, password)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [name, email, password]
+    )
+    return mapUser(result.rows[0])
+  },
+
+  async updateCartData(id, cartData) {
+    const result = await query(
+      `UPDATE users
+       SET cart_data = $2::jsonb
+       WHERE id = $1
+       RETURNING *`,
+      [id, JSON.stringify(cartData)]
+    )
+    return mapUser(result.rows[0])
+  },
+}
+
+export default userModel

@@ -7,6 +7,13 @@ import validator from 'validator'
 const loginUser = async (req, res) => {
   const { email, password } = req.body
   try {
+    if (!email || !password) {
+      return res.json({
+        success: false,
+        message: 'Email and password are required',
+      })
+    }
+
     const user = await userModel.findOne({ email })
 
     if (!user) {
@@ -35,6 +42,13 @@ const createToken = (id) => {
 const registerUser = async (req, res) => {
   const { name, password, email } = req.body
   try {
+    if (!name || !email || !password) {
+      return res.json({
+        success: false,
+        message: 'Name, email, and password are required',
+      })
+    }
+
     // Cheacking is user already exists
     const exists = await userModel.findOne({ email })
     if (exists) {
@@ -58,13 +72,12 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt)
 
     // Creating new user
-    const newUser = new userModel({
+    const user = await userModel.create({
       name: name,
       email: email,
       password: hashedPassword,
     })
 
-    const user = await newUser.save()
     const token = createToken(user._id)
     res.json({ success: true, token })
   } catch (error) {

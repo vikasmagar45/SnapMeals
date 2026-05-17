@@ -1,9 +1,9 @@
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import { connectDB } from './config/db.js'
 import foodRouter from './routes/foodRoute.js'
 import userRouter from './routes/userRoute.js'
-import 'dotenv/config'
 import cartRouter from './routes/cartRoute.js'
 import orderRouter from './routes/orderRoute.js'
 
@@ -14,10 +14,6 @@ const port = process.env.PORT || 4000
 // middlewares
 app.use(express.json())
 app.use(cors())
-
-// Db connection
-
-connectDB()
 
 // API Endpoints
 app.use('/api/food', foodRouter)
@@ -30,8 +26,13 @@ app.get('/', (req, res) => {
   res.send('Api Working')
 })
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`)
-})
-
-// mongodb+srv://vikas121magar:Modern14@foodapp.e20buak.mongodb.net/?
+connectDB()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`)
+    })
+  })
+  .catch((error) => {
+    console.error('Failed to start server:', error.message)
+    process.exit(1)
+  })
